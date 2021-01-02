@@ -307,32 +307,39 @@ open class CustomButton: NSButton {
 	}
 
     private func positionContent() {
+        
         let titleSize = title.size(withAttributes: [.font: font as Any])
-        titleLayer.frame = titleSize.centered(in: bounds);
+        var titleFrame = titleSize.centered(in: bounds);
         
         if textPosition == .left { titleLayer.frame.origin.x = textMargin }
         if textPosition == .right { titleLayer.frame.origin.x = bounds.width - titleLayer.frame.width - textMargin }
         
+        imageLayer.isHidden = true
         if let image = image {
+            var imageFrame = imageLayer.frame
             let imageWidth = image.size.width
             let imageWidthMargin = imageWidth + imageMargin
             
-            imageLayer.frame.size = image.size
+            imageFrame.size = image.size
+            imageFrame.origin.y = (bounds.height - imageFrame.height) / 2
+            
             if textPosition == .left {
-                titleLayer.frame.origin.x += imageWidthMargin
-                imageLayer.frame.origin.x = imageMargin
+                titleFrame.origin.x += imageWidthMargin
+                imageFrame.origin.x = imageMargin
             } else if textPosition == .right {
-                titleLayer.frame.origin.x -= imageWidthMargin
-                imageLayer.frame.origin.x = bounds.width - imageWidthMargin
+                titleFrame.origin.x -= imageWidthMargin
+                imageFrame.origin.x = bounds.width - imageWidthMargin
             } else {
-                titleLayer.frame.origin.x += (imageWidth + textMargin) / 2
-                imageLayer.frame.origin.x = titleLayer.frame.origin.x - textMargin - imageWidth
+                titleFrame.origin.x += (imageWidth + textMargin) / 2
+                imageFrame.origin.x = titleFrame.origin.x - textMargin - imageWidth
             }
-            imageLayer.frame.origin.y = (bounds.height - imageLayer.frame.height) / 2
+            
+            imageLayer.frame = imageFrame.roundedOrigin()
             imageMaskLayer.frame = imageLayer.bounds
-        } else {
-            imageLayer.isHidden = true
+            imageLayer.isHidden = false
         }
+        
+        titleLayer.frame = titleFrame.roundedOrigin()
     }
 
 	override open func viewDidChangeBackingProperties() {
@@ -364,7 +371,8 @@ open class CustomButton: NSButton {
 		}
 
 		titleLayer.alignmentMode = .center
-		titleLayer.contentsScale = window?.backingScaleFactor ?? 2
+		//titleLayer.contentsScale = window?.backingScaleFactor ?? 2
+        titleLayer.contentsScale = window?.backingScaleFactor ?? 1
         titleLayer.foregroundColor = getTextColor().cgColor
 		layer?.addSublayer(titleLayer)
 		setTitle()
