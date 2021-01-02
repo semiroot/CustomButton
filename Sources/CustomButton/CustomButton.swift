@@ -388,6 +388,7 @@ open class CustomButton: NSButton {
             layer?.borderColor = getBorderColor().cgColor
             layer?.shadowColor = getShadowColor().cgColor
             titleLayer.foregroundColor = getTextColor().cgColor
+            imageLayer.backgroundColor = getTextColor().cgColor
             return
         }
         
