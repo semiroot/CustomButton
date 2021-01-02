@@ -10,7 +10,7 @@ This package is used in production by [Gifski](https://github.com/sindresorhus/G
 
 ## Requirements
 
-- macOS 10.12+
+- macOS 10.14+
 - Xcode 12+
 - Swift 5.3+
 
