@@ -36,8 +36,7 @@ open class CustomButton: NSButton {
     // MARK: - Text Functionality
     private let titleLayer = CATextLayer()
     
-    @IBInspectable public var textMargin: CGFloat = 8
-    @IBInspectable public var textPosition: NSTextAlignment = .center
+    @IBInspectable public var textMargin: CGFloat = 10
 
 	@IBInspectable public var textColorLight: NSColor = .labelColor
     @IBInspectable public var textColorDark: NSColor = .labelColor
@@ -294,6 +293,63 @@ open class CustomButton: NSButton {
     }
     
     
+    // MARK: - Positioning
+    public var contentPosition: Position = .center
+
+    private func positionContent() {
+        let hasTitle = title != ""
+        let titleSize = title.size(withAttributes: [.font: font as Any])
+        let titleY = (bounds.height - titleSize.height) / 2
+        var titleX = CGFloat(0)
+        
+        let hasImage = image != nil
+        let imageSize = image?.size ?? NSSize(width: 0, height: 0)
+        let imageY = (bounds.height - imageSize.height) / 2
+        var imageX = CGFloat(0)
+        
+        if contentPosition == .left {
+            if hasTitle {
+                titleX = textMargin
+            }
+            if hasImage {
+                imageX = imageMargin
+                if hasTitle {
+                    titleX += imageMargin + imageSize.width
+                }
+            }
+        }
+        if contentPosition == .center {
+            if hasTitle {
+                titleX = (bounds.width - titleSize.width) / 2
+            }
+            if hasImage {
+                if hasTitle {
+                    // use text margin instead of image margin when centered
+                    let imageArea = textMargin + imageSize.width
+                    titleX += imageArea / 2
+                    imageX = titleX - imageArea
+                } else {
+                    imageX = (bounds.width - imageSize.width) / 2
+                }
+            }
+        }
+        if contentPosition == .right {
+            if hasTitle {
+                titleX = bounds.width - titleSize.width - textMargin
+            }
+            if hasImage {
+                imageX = bounds.width - imageSize.width - imageMargin
+                if hasTitle {
+                    titleX -= imageMargin + imageSize.width
+                }
+            }
+        }
+        
+        titleLayer.frame = CGRect(x: titleX, y: titleY, width: titleSize.width, height: titleSize.height).roundedOrigin()
+        imageLayer.frame = CGRect(x: imageX, y: imageY, width: imageSize.width, height: imageSize.height).roundedOrigin()
+        imageMaskLayer.frame = imageLayer.bounds
+    }
+    
     // MARK: - Layout Functionality
     override open var wantsUpdateLayer: Bool { true }
 
@@ -305,42 +361,6 @@ open class CustomButton: NSButton {
 		super.layout()
 		positionContent()
 	}
-
-    private func positionContent() {
-        
-        let titleSize = title.size(withAttributes: [.font: font as Any])
-        var titleFrame = titleSize.centered(in: bounds);
-        
-        if textPosition == .left { titleLayer.frame.origin.x = textMargin }
-        if textPosition == .right { titleLayer.frame.origin.x = bounds.width - titleLayer.frame.width - textMargin }
-        
-        imageLayer.isHidden = true
-        if let image = image {
-            var imageFrame = imageLayer.frame
-            let imageWidth = image.size.width
-            let imageWidthMargin = imageWidth + imageMargin
-            
-            imageFrame.size = image.size
-            imageFrame.origin.y = (bounds.height - imageFrame.height) / 2
-            
-            if textPosition == .left {
-                titleFrame.origin.x += imageWidthMargin
-                imageFrame.origin.x = imageMargin
-            } else if textPosition == .right {
-                titleFrame.origin.x -= imageWidthMargin
-                imageFrame.origin.x = bounds.width - imageWidthMargin
-            } else {
-                titleFrame.origin.x += (imageWidth + textMargin) / 2
-                imageFrame.origin.x = titleFrame.origin.x - textMargin - imageWidth
-            }
-            
-            imageLayer.frame = imageFrame.roundedOrigin()
-            imageMaskLayer.frame = imageLayer.bounds
-            imageLayer.isHidden = false
-        }
-        
-        titleLayer.frame = titleFrame.roundedOrigin()
-    }
 
 	override open func viewDidChangeBackingProperties() {
 		super.viewDidChangeBackingProperties()
@@ -371,8 +391,7 @@ open class CustomButton: NSButton {
 		}
 
 		titleLayer.alignmentMode = .center
-		//titleLayer.contentsScale = window?.backingScaleFactor ?? 2
-        titleLayer.contentsScale = window?.backingScaleFactor ?? 1
+        titleLayer.contentsScale = window?.backingScaleFactor ?? 2
         titleLayer.foregroundColor = getTextColor().cgColor
 		layer?.addSublayer(titleLayer)
 		setTitle()
@@ -472,7 +491,11 @@ open class CustomButton: NSButton {
     }
 }
 
-
 extension CustomButton: NSViewLayerContentScaleDelegate {
 	public func layer(_ layer: CALayer, shouldInheritContentsScale newScale: CGFloat, from window: NSWindow) -> Bool { true }
 }
+
+public enum Position {
+    case left, center, right
+}
+
