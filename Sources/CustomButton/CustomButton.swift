@@ -2,22 +2,10 @@ import Cocoa
 
 @IBDesignable
 open class CustomButton: NSButton {
-
-	public static func circularButton(title: String, radius: Double, center: CGPoint) -> CustomButton {
-		with(CustomButton()) {
-			$0.title = title
-			$0.frame = CGRect(x: Double(center.x) - radius, y: Double(center.y) - radius, width: radius * 2, height: radius * 2)
-			$0.cornerRadius = radius
-			$0.font = .systemFont(ofSize: CGFloat(radius * 2 / 3))
-		}
-	}
-    
     
     // MARK: - State Functionality
     override public var isEnabled: Bool {
-        didSet {
-            alphaValue = isEnabled ? 1 : 0.6
-        }
+        didSet { alphaValue = isEnabled ? 1 : 0.6 }
     }
     
     private var isLightAppearanc: Bool {
@@ -36,44 +24,39 @@ open class CustomButton: NSButton {
     // MARK: - Text Functionality
     private let titleLayer = CATextLayer()
     
-    @IBInspectable public var textMargin: CGFloat = 10
+    @IBInspectable public var titleMargin: CGFloat = 10
 
-	@IBInspectable public var textColorLight: NSColor = .labelColor
-    @IBInspectable public var textColorDark: NSColor = .labelColor
-	@IBInspectable public var activeTextColorLight: NSColor = .labelColor
-    @IBInspectable public var activeTextColorDark: NSColor = .labelColor
-    
-    @IBInspectable public var activeTextColor: NSColor = .clear {
+	@IBInspectable public var titleColorLight: NSColor = .labelColor
+    @IBInspectable public var titleColorDark: NSColor = .labelColor
+    @IBInspectable public var titleColor: NSColor = .clear {
         didSet {
-            activeTextColorDark = activeTextColor
-            activeTextColorLight = activeTextColor
+            titleColorDark = titleColor
+            titleColorLight = titleColor
         }
     }
     
-    @IBInspectable public var textColor: NSColor = .clear {
+    @IBInspectable public var titleColorLightActive: NSColor = .labelColor
+    @IBInspectable public var titleColorDarkActive: NSColor = .labelColor
+    @IBInspectable public var titleColorActive: NSColor = .clear {
         didSet {
-            textColorDark = textColor
-            textColorLight = textColor
-        }
-    }
-    
-    private func getTextColor() -> NSColor {
-        if isLightAppearanc {
-            return isOn ? activeTextColorLight : textColorLight
-        } else {
-            return isOn ? activeTextColorDark : textColorDark
+            titleColorDarkActive = titleColorActive
+            titleColorLightActive = titleColorActive
         }
     }
     
     @IBInspectable override public var title: String {
-        didSet {
-            setTitle()
-        }
+        didSet { setTitle() }
     }
     
     override public var font: NSFont? {
-        didSet {
-            setTitle()
+        didSet { setTitle() }
+    }
+    
+    private func getTitleColor() -> NSColor {
+        if isLightAppearanc {
+            return isOn ? titleColorLightActive : titleColorLight
+        } else {
+            return isOn ? titleColorDarkActive : titleColorDark
         }
     }
     
@@ -89,21 +72,18 @@ open class CustomButton: NSButton {
     }
     
     
-    // MARK: - Image Functionality
-    private let imageLayer = CALayer()
-    private let imageMaskLayer = CALayer()
+    // MARK: - Icon Functionality
+    private let iconLayer = CALayer()
+    private let iconMaskLayer = CALayer()
     
-    @IBInspectable public var imageMargin: CGFloat = 8
-        
-    @IBInspectable override public var image: NSImage? {
-        didSet {
-            setImage()
-        }
+    @IBInspectable public var iconMargin: CGFloat = 8
+    @IBInspectable public var icon: NSImage? {
+        didSet { setIcon() }
     }
     
-    private func setImage() {
-        guard let image = image else { return }
-        imageMaskLayer.contents = image.layerContents(forContentsScale: window?.backingScaleFactor ?? 2)
+    private func setIcon() {
+        guard let icon = icon else { return }
+        iconMaskLayer.contents = icon.layerContents(forContentsScale: window?.backingScaleFactor ?? 2)
         needsLayout = true
     }
     
@@ -111,9 +91,6 @@ open class CustomButton: NSButton {
     // MARK: - Background Functionality
     @IBInspectable public var backgroundColorLight: NSColor = .clear
     @IBInspectable public var backgroundColorDark: NSColor = .clear
-    @IBInspectable public var activeBackgroundColorLight: NSColor? = .clear
-    @IBInspectable public var activeBackgroundColorDark: NSColor? = .clear
-
     @IBInspectable public var backgroundColor: NSColor = .clear {
         didSet {
             backgroundColorLight = backgroundColor
@@ -121,18 +98,20 @@ open class CustomButton: NSButton {
         }
     }
     
-    @IBInspectable public var activeBackgroundColor: NSColor = .clear {
+    @IBInspectable public var backgroundColorLightActive: NSColor? = .clear
+    @IBInspectable public var backgroundColorDarkActive: NSColor? = .clear
+    @IBInspectable public var backgroundColorActive: NSColor = .clear {
         didSet {
-            activeBackgroundColorLight = activeBackgroundColor
-            activeBackgroundColorDark = activeBackgroundColor
+            backgroundColorLightActive = backgroundColorActive
+            backgroundColorDarkActive = backgroundColorActive
         }
     }
     
     private func getBackgroundColor() -> NSColor {
         if isLightAppearanc {
-            return isOn ? (activeBackgroundColorLight ?? backgroundColorLight) : backgroundColorLight
+            return isOn ? (backgroundColorLightActive ?? backgroundColorLight) : backgroundColorLight
         } else {
-            return isOn ? (activeBackgroundColorDark ?? backgroundColorDark) : backgroundColorDark
+            return isOn ? (backgroundColorDarkActive ?? backgroundColorDark) : backgroundColorDark
         }
     }
     
@@ -179,9 +158,7 @@ open class CustomButton: NSButton {
     }
     
 	@IBInspectable public var cornerRadius: Double = 0 {
-		didSet {
-			layer?.cornerRadius = CGFloat(cornerRadius)
-		}
+		didSet { layer?.cornerRadius = CGFloat(cornerRadius) }
 	}
 
 	@IBInspectable public var hasContinuousCorners: Bool = true {
@@ -193,16 +170,11 @@ open class CustomButton: NSButton {
 	}
 
 	@IBInspectable public var borderWidth: Double = 0 {
-		didSet {
-			layer?.borderWidth = CGFloat(borderWidth)
-		}
-	}
-
+		didSet { layer?.borderWidth = CGFloat(borderWidth) }
+    }
+    
     @IBInspectable public var borderColorLight: NSColor = .clear
     @IBInspectable public var borderColorDark: NSColor = .clear
-    @IBInspectable public var activeBorderColorLight: NSColor = .clear
-    @IBInspectable public var activeBorderColorDark: NSColor = .clear
-    
 	@IBInspectable public var borderColor: NSColor = .clear {
 		didSet {
             borderColorLight = borderColor
@@ -210,75 +182,72 @@ open class CustomButton: NSButton {
 		}
 	}
 
-	@IBInspectable public var activeBorderColor: NSColor = .clear {
+    @IBInspectable public var borderColorLightActive: NSColor = .clear
+    @IBInspectable public var borderColorDarkActive: NSColor = .clear
+	@IBInspectable public var borderColorActive: NSColor = .clear {
 		didSet {
-            activeBorderColorLight = activeBorderColor
-            activeBorderColorDark = activeBorderColor
+            borderColorLightActive = borderColorActive
+            borderColorDarkActive = borderColorActive
 		}
 	}
     
     private func getBorderColor() -> NSColor {
         if isLightAppearanc {
-            return isOn ? activeBorderColorLight : borderColorLight
+            return isOn ? borderColorLightActive : borderColorLight
         } else {
-            return isOn ? activeBorderColorDark : borderColorDark
+            return isOn ? borderColorDarkActive : borderColorDark
         }
     }
     
     
     // MARK: - Shadow Functionality
 	@IBInspectable public var shadowRadius: Double = 0 {
-		didSet {
-			layer?.shadowRadius = CGFloat(shadowRadius)
-		}
+		didSet { layer?.shadowRadius = CGFloat(shadowRadius) }
 	}
 
-	@IBInspectable public var activeShadowRadius: Double = -1 {
+	@IBInspectable public var shadowRadiusActive: Double = -1 {
 		didSet {
 			if state == .on {
-				layer?.shadowRadius = CGFloat(activeShadowRadius)
+				layer?.shadowRadius = CGFloat(shadowRadiusActive)
 			}
 		}
 	}
 
 	@IBInspectable public var shadowOpacity: Double = 0 {
-		didSet {
-			layer?.shadowOpacity = Float(shadowOpacity)
-		}
+		didSet { layer?.shadowOpacity = Float(shadowOpacity) }
 	}
 
-	@IBInspectable public var activeShadowOpacity: Double = -1 {
+	@IBInspectable public var shadowActive: Double = -1 {
 		didSet {
 			if state == .on {
-				layer?.shadowOpacity = Float(activeShadowOpacity)
+				layer?.shadowOpacity = Float(shadowActive)
 			}
 		}
 	}
 
     @IBInspectable public var shadowColorLight: NSColor = .clear
     @IBInspectable public var shadowColorDark: NSColor = .clear
-    @IBInspectable public var activeShadowColorLight: NSColor = .clear
-    @IBInspectable public var activeShadowColorDark: NSColor = .clear
-    
 	@IBInspectable public var shadowColor: NSColor = .clear {
 		didSet {
             shadowColorLight = shadowColor
             shadowColorDark = shadowColor
 		}
 	}
-
-	@IBInspectable public var activeShadowColor: NSColor = .clear {
+    
+    @IBInspectable public var shadowColorLightActive: NSColor = .clear
+    @IBInspectable public var shadowColorDarkActive: NSColor = .clear
+	@IBInspectable public var shadowColorActive: NSColor = .clear {
 		didSet {
-            activeShadowColorLight = activeShadowColor
-            activeShadowColorDark = activeShadowColor
+            shadowColorLightActive = shadowColorActive
+            shadowColorDarkActive = shadowColorActive
 		}
 	}
     
     private func getShadowColor() -> NSColor {
         if isLightAppearanc {
-            return isOn ? activeShadowColorLight : shadowColorLight
+            return isOn ? shadowColorLightActive : shadowColorLight
         } else {
-            return isOn ? activeShadowColorDark : shadowColorDark
+            return isOn ? shadowColorDarkActive : shadowColorDark
         }
     }
     
@@ -294,59 +263,85 @@ open class CustomButton: NSButton {
     
     
     // MARK: - Positioning
-    public var contentPosition: Position = .center
+    public var contentPosition: ContentPosition = .center
+    
+    override open var intrinsicContentSize: NSSize {
+        get {
+            let textSize = calculateTitleArea()
+            let iconSize = calculateIconArea()
+            return NSSize(width: textSize.width + iconSize.width, height: max(textSize.height, iconSize.height))
+        }
+    }
+    
+    private func calculateTitleArea() -> NSSize {
+        if title == "" { return NSSize() }
+        
+        var size = title.size(withAttributes: [.font: font as Any])
+        size.width += titleMargin * 2
+        
+        return size
+    }
+    
+    private func calculateIconArea() -> NSSize {
+        guard let icon = icon else { return NSSize() }
+        
+        var size = icon.size
+        size.width += title == "" && contentPosition == .center ? iconMargin * 2 : iconMargin
+        
+        return size
+    }
 
     private func positionContent() {
         let hasTitle = title != ""
-        var titleSize = title.size(withAttributes: [.font: font as Any])
-        let titleY = (bounds.height - titleSize.height) / 2
+        let titleArea = calculateTitleArea()
+        let titleY = (bounds.height - titleArea.height) / 2
         var titleX = CGFloat(0)
         
-        let hasImage = image != nil
-        let imageSize = image?.size ?? NSSize(width: 0, height: 0)
-        let imageY = (bounds.height - imageSize.height) / 2
-        var imageX = CGFloat(0)
+        let hasIcon = icon != nil
+        let iconArea = calculateIconArea()
+        let iconSize = icon?.size ?? NSSize()
+        let iconY = (bounds.height - iconArea.height) / 2
+        var iconX = CGFloat(0)
         
         if hasTitle {
-            // Add text margins
-            titleSize = CGSize(width: titleSize.width + imageMargin * 2, height: titleSize.height)
             switch contentPosition {
                 case .left:
                     titleX = 0
                 case .right:
-                    titleX = bounds.width - titleSize.width
+                    titleX = bounds.width - titleArea.width
                 case .center:
-                    titleX = titleSize.centered(in: bounds).origin.x
+                    titleX = titleArea.centered(in: bounds).origin.x
             }
         }
         
-        if hasImage {
+        if hasIcon {
             switch contentPosition {
                 case .left:
-                    imageX = imageMargin
+                    iconX = iconMargin
                 case .right:
-                    imageX = bounds.width - imageSize.width - imageMargin
+                    iconX = bounds.width - iconArea.width
                 case .center:
-                    imageX = imageSize.centered(in: bounds).origin.x
+                    iconX = iconSize.centered(in: bounds).origin.x
             }
             
-            // shift elements when both, image and text exist
+            // shift elements when both, icon and text exist
             if hasTitle {
                 switch contentPosition {
                     case .left:
-                        titleX += imageMargin + imageSize.width
+                        titleX += iconArea.width
                     case .right:
-                        titleX -= imageMargin + imageSize.width
+                        titleX -= iconArea.width
                     case .center:
-                        titleX += imageSize.width / 2
-                        imageX = titleX - imageSize.width
+                        titleX += iconArea.width / 2
+                        iconX = titleX - iconSize.width
+                        
                 }
             }
         }
         
-        titleLayer.frame = CGRect(x: titleX, y: titleY, width: titleSize.width, height: titleSize.height).roundedOrigin()
-        imageLayer.frame = CGRect(x: imageX, y: imageY, width: imageSize.width, height: imageSize.height).roundedOrigin()
-        imageMaskLayer.frame = imageLayer.bounds
+        titleLayer.frame = CGRect(x: titleX, y: titleY, width: titleArea.width, height: titleArea.height).roundedOrigin()
+        iconLayer.frame = CGRect(x: iconX, y: iconY, width: iconSize.width, height: iconSize.height).roundedOrigin()
+        iconMaskLayer.frame = iconLayer.bounds
     }
     
     // MARK: - Layout Functionality
@@ -367,8 +362,8 @@ open class CustomButton: NSButton {
 		if let scale = window?.backingScaleFactor {
 			layer?.contentsScale = scale
 			titleLayer.contentsScale = scale
-            imageLayer.contentsScale = scale
-            imageMaskLayer.contents = image?.layerContents(forContentsScale: scale)
+            iconLayer.contentsScale = scale
+            iconMaskLayer.contents = icon?.layerContents(forContentsScale: scale)
 		}
 	}
 
@@ -376,11 +371,12 @@ open class CustomButton: NSButton {
 		wantsLayer = true
 
 		layer?.masksToBounds = false
+        layer?.autoresizingMask = .layerWidthSizable
         
 		layer?.cornerRadius = CGFloat(cornerRadius)
 		layer?.borderWidth = CGFloat(borderWidth)
-		layer?.shadowRadius = CGFloat(isOn && activeShadowRadius != -1 ? activeShadowRadius : shadowRadius)
-		layer?.shadowOpacity = Float(isOn && activeShadowOpacity != -1 ? activeShadowOpacity : shadowOpacity)
+		layer?.shadowRadius = CGFloat(isOn && shadowRadiusActive != -1 ? shadowRadiusActive : shadowRadius)
+		layer?.shadowOpacity = Float(isOn && shadowActive != -1 ? shadowActive : shadowOpacity)
         layer?.backgroundColor = getBackgroundColor().cgColor
 		layer?.borderColor = getBorderColor().cgColor
 		layer?.shadowColor = getShadowColor().cgColor
@@ -389,18 +385,19 @@ open class CustomButton: NSButton {
 			layer?.cornerCurve = hasContinuousCorners ? .continuous : .circular
 		}
 
+        titleLayer.string = ""
 		titleLayer.alignmentMode = .center
         titleLayer.contentsScale = window?.backingScaleFactor ?? 2
-        titleLayer.foregroundColor = getTextColor().cgColor
+        titleLayer.foregroundColor = getTitleColor().cgColor
 		layer?.addSublayer(titleLayer)
 		setTitle()
         
-        imageLayer.contentsScale = window?.backingScaleFactor ?? 2
-        imageLayer.backgroundColor = isOn ? activeTextColor.cgColor : textColor.cgColor
-        imageLayer.mask = imageMaskLayer
-        layer?.addSublayer(imageLayer)
-        setImage()
+        iconLayer.contentsScale = window?.backingScaleFactor ?? 2
+        iconLayer.mask = iconMaskLayer
+        layer?.addSublayer(iconLayer)
+        setIcon()
 
+        positionContent()
 		needsDisplay = true
 	}
 
@@ -413,8 +410,8 @@ open class CustomButton: NSButton {
             layer?.backgroundColor = getBackgroundColor().cgColor
             layer?.borderColor = getBorderColor().cgColor
             layer?.shadowColor = getShadowColor().cgColor
-            titleLayer.foregroundColor = getTextColor().cgColor
-            imageLayer.backgroundColor = getTextColor().cgColor
+            titleLayer.foregroundColor = getTitleColor().cgColor
+            iconLayer.backgroundColor = getTitleColor().cgColor
             return
         }
         
@@ -422,8 +419,8 @@ open class CustomButton: NSButton {
 		layer?.animate(\.backgroundColor, to: getBackgroundColor(), duration: duration)
 		layer?.animate(\.borderColor, to: getBorderColor(), duration: duration)
 		layer?.animate(\.shadowColor, to: getShadowColor(), duration: duration)
-		titleLayer.animate(\.foregroundColor, to: getTextColor(), duration: duration)
-        imageLayer.animate(\.backgroundColor, to: getTextColor(), duration: duration)
+		titleLayer.animate(\.foregroundColor, to: getTitleColor(), duration: duration)
+        iconLayer.animate(\.backgroundColor, to: getTitleColor(), duration: duration)
 	}
     
     
@@ -494,7 +491,7 @@ extension CustomButton: NSViewLayerContentScaleDelegate {
 	public func layer(_ layer: CALayer, shouldInheritContentsScale newScale: CGFloat, from window: NSWindow) -> Bool { true }
 }
 
-public enum Position {
+public enum ContentPosition {
     case left, center, right
 }
 
