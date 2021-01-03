@@ -298,7 +298,7 @@ open class CustomButton: NSButton {
 
     private func positionContent() {
         let hasTitle = title != ""
-        let titleSize = title.size(withAttributes: [.font: font as Any])
+        var titleSize = title.size(withAttributes: [.font: font as Any])
         let titleY = (bounds.height - titleSize.height) / 2
         var titleX = CGFloat(0)
         
@@ -307,40 +307,39 @@ open class CustomButton: NSButton {
         let imageY = (bounds.height - imageSize.height) / 2
         var imageX = CGFloat(0)
         
-        if contentPosition == .left {
-            if hasTitle {
-                titleX = textMargin
-            }
-            if hasImage {
-                imageX = imageMargin
-                if hasTitle {
-                    titleX += imageMargin + imageSize.width
-                }
-            }
-        }
-        if contentPosition == .center {
-            if hasTitle {
-                titleX = (bounds.width - titleSize.width) / 2
-            }
-            if hasImage {
-                if hasTitle {
-                    // use text margin instead of image margin when centered
-                    let imageArea = textMargin + imageSize.width
-                    titleX += imageArea / 2
-                    imageX = titleX - imageArea
-                } else {
-                    imageX = (bounds.width - imageSize.width) / 2
-                }
+        if hasTitle {
+            // Add text margins
+            titleSize = CGSize(width: titleSize.width + imageMargin * 2, height: titleSize.height)
+            switch contentPosition {
+                case .left:
+                    titleX = 0
+                case .right:
+                    titleX = bounds.width - titleSize.width
+                case .center:
+                    titleX = titleSize.centered(in: bounds).origin.x
             }
         }
-        if contentPosition == .right {
-            if hasTitle {
-                titleX = bounds.width - titleSize.width - textMargin
+        
+        if hasImage {
+            switch contentPosition {
+                case .left:
+                    imageX = imageMargin
+                case .right:
+                    imageX = bounds.width - imageSize.width - imageMargin
+                case .center:
+                    imageX = imageSize.centered(in: bounds).origin.x
             }
-            if hasImage {
-                imageX = bounds.width - imageSize.width - imageMargin
-                if hasTitle {
-                    titleX -= imageMargin + imageSize.width
+            
+            // shift elements when both, image and text exist
+            if hasTitle {
+                switch contentPosition {
+                    case .left:
+                        titleX += imageMargin + imageSize.width
+                    case .right:
+                        titleX -= imageMargin + imageSize.width
+                    case .center:
+                        titleX += imageSize.width / 2
+                        imageX = titleX - imageSize.width
                 }
             }
         }
