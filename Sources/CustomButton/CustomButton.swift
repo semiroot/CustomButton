@@ -4,12 +4,7 @@ import Cocoa
 open class CustomButton: NSButton {
     
     // MARK: - State Functionality
-    public var isPressed: Bool = false {
-        didSet {
-            //alphaValue = isPressed ? 1 : 0.6
-            animateColor()
-        }
-    }
+    
     
     private var isLightAppearanc: Bool {
         let appearanceName = NSApp.effectiveAppearance.name
@@ -57,9 +52,9 @@ open class CustomButton: NSButton {
     
     private func getTitleColor() -> NSColor {
         if isLightAppearanc {
-            return isOn || isPressed ? titleColorLightActive : titleColorLight
+            return isOn || isPressed || isHover ? titleColorLightActive : titleColorLight
         } else {
-            return isOn || isPressed ? titleColorDarkActive : titleColorDark
+            return isOn || isPressed || isHover ? titleColorDarkActive : titleColorDark
         }
     }
     
@@ -112,9 +107,9 @@ open class CustomButton: NSButton {
     
     private func getBackgroundColor() -> NSColor {
         if isLightAppearanc {
-            return isOn || isPressed ? (backgroundColorLightActive ?? backgroundColorLight) : backgroundColorLight
+            return isOn || isPressed || isHover ? (backgroundColorLightActive ?? backgroundColorLight) : backgroundColorLight
         } else {
-            return isOn || isPressed ? (backgroundColorDarkActive ?? backgroundColorDark) : backgroundColorDark
+            return isOn || isPressed || isHover ? (backgroundColorDarkActive ?? backgroundColorDark) : backgroundColorDark
         }
     }
     
@@ -196,9 +191,9 @@ open class CustomButton: NSButton {
     
     private func getBorderColor() -> NSColor {
         if isLightAppearanc {
-            return isOn || isPressed ? borderColorLightActive : borderColorLight
+            return isOn || isPressed || isHover ? borderColorLightActive : borderColorLight
         } else {
-            return isOn || isPressed ? borderColorDarkActive : borderColorDark
+            return isOn || isPressed || isHover ? borderColorDarkActive : borderColorDark
         }
     }
     
@@ -248,9 +243,9 @@ open class CustomButton: NSButton {
     
     private func getShadowColor() -> NSColor {
         if isLightAppearanc {
-            return isOn || isPressed ? shadowColorLightActive : shadowColorLight
+            return isOn || isPressed || isHover ? shadowColorLightActive : shadowColorLight
         } else {
-            return isOn || isPressed ? shadowColorDarkActive : shadowColorDark
+            return isOn || isPressed || isHover ? shadowColorDarkActive : shadowColorDark
         }
     }
     
@@ -411,6 +406,7 @@ open class CustomButton: NSButton {
 
 	private func animateColor() {
         if !animateState {
+            layer?.opacity = isPressed ? 0.3 : 1
             layer?.backgroundColor = getBackgroundColor().cgColor
             layer?.borderColor = getBorderColor().cgColor
             layer?.shadowColor = getShadowColor().cgColor
@@ -440,7 +436,21 @@ open class CustomButton: NSButton {
         ]
     )
     
-    override open var acceptsFirstResponder: Bool { return true }
+    public var isPressed: Bool = false {
+        didSet {
+            //alphaValue = isPressed ? 1 : 0.6
+            animateColor()
+        }
+    }
+    
+    public var isHover: Bool = false {
+        didSet {
+            //alphaValue = isPressed ? 1 : 0.6
+            animateColor()
+        }
+    }
+    
+    override open func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
 
     override open func updateTrackingAreas() {
         super.updateTrackingAreas()
@@ -448,7 +458,7 @@ open class CustomButton: NSButton {
     }
     
 	override open func hitTest(_ point: CGPoint) -> NSView? {
-		isEnabled ? super.hitTest(point) : nil
+		return isEnabled ? super.hitTest(point) : nil
 	}
 
 	override open func mouseDown(with event: NSEvent) {
@@ -456,15 +466,16 @@ open class CustomButton: NSButton {
 	}
 
 	override open func mouseEntered(with event: NSEvent) {
-        isPressed = true
+        isHover = true
 	}
 
 	override open func mouseExited(with event: NSEvent) {
-        isPressed = false
+        isHover = false
 	}
 
 	override open func mouseUp(with event: NSEvent) {
         isPressed = false
+        isHover = false
         toggleState()
         _ = target?.perform(action, with: self)
 	}
