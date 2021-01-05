@@ -439,6 +439,8 @@ open class CustomButton: NSButton {
             .activeInActiveApp
         ]
     )
+    
+    override open var acceptsFirstResponder: Bool { return true }
 
     override open func updateTrackingAreas() {
         super.updateTrackingAreas()
