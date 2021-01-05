@@ -4,8 +4,11 @@ import Cocoa
 open class CustomButton: NSButton {
     
     // MARK: - State Functionality
-    override public var isEnabled: Bool {
-        didSet { alphaValue = isEnabled ? 1 : 0.6 }
+    public var isPressed: Bool = false {
+        didSet {
+            //alphaValue = isPressed ? 1 : 0.6
+            animateColor()
+        }
     }
     
     private var isLightAppearanc: Bool {
@@ -54,9 +57,9 @@ open class CustomButton: NSButton {
     
     private func getTitleColor() -> NSColor {
         if isLightAppearanc {
-            return isOn ? titleColorLightActive : titleColorLight
+            return isOn || isPressed ? titleColorLightActive : titleColorLight
         } else {
-            return isOn ? titleColorDarkActive : titleColorDark
+            return isOn || isPressed ? titleColorDarkActive : titleColorDark
         }
     }
     
@@ -109,9 +112,9 @@ open class CustomButton: NSButton {
     
     private func getBackgroundColor() -> NSColor {
         if isLightAppearanc {
-            return isOn ? (backgroundColorLightActive ?? backgroundColorLight) : backgroundColorLight
+            return isOn || isPressed ? (backgroundColorLightActive ?? backgroundColorLight) : backgroundColorLight
         } else {
-            return isOn ? (backgroundColorDarkActive ?? backgroundColorDark) : backgroundColorDark
+            return isOn || isPressed ? (backgroundColorDarkActive ?? backgroundColorDark) : backgroundColorDark
         }
     }
     
@@ -193,9 +196,9 @@ open class CustomButton: NSButton {
     
     private func getBorderColor() -> NSColor {
         if isLightAppearanc {
-            return isOn ? borderColorLightActive : borderColorLight
+            return isOn || isPressed ? borderColorLightActive : borderColorLight
         } else {
-            return isOn ? borderColorDarkActive : borderColorDark
+            return isOn || isPressed ? borderColorDarkActive : borderColorDark
         }
     }
     
@@ -245,9 +248,9 @@ open class CustomButton: NSButton {
     
     private func getShadowColor() -> NSColor {
         if isLightAppearanc {
-            return isOn ? shadowColorLightActive : shadowColorLight
+            return isOn || isPressed ? shadowColorLightActive : shadowColorLight
         } else {
-            return isOn ? shadowColorDarkActive : shadowColorDark
+            return isOn || isPressed ? shadowColorDarkActive : shadowColorDark
         }
     }
     
@@ -258,6 +261,7 @@ open class CustomButton: NSButton {
     @IBInspectable public var activeAnimationDuration: Double = 0.2
     
     private func getAnimationDuration() -> Double {
+        if !animateState { return 0 }
         return isOn ? activeAnimationDuration : animationDuration
     }
     
@@ -414,13 +418,14 @@ open class CustomButton: NSButton {
             iconLayer.backgroundColor = getTitleColor().cgColor
             return
         }
-        
+        /*
         let duration = getAnimationDuration()
 		layer?.animate(\.backgroundColor, to: getBackgroundColor(), duration: duration)
 		layer?.animate(\.borderColor, to: getBorderColor(), duration: duration)
 		layer?.animate(\.shadowColor, to: getShadowColor(), duration: duration)
 		titleLayer.animate(\.foregroundColor, to: getTitleColor(), duration: duration)
         iconLayer.animate(\.backgroundColor, to: getTitleColor(), duration: duration)
+ */
 	}
     
     
@@ -445,29 +450,21 @@ open class CustomButton: NSButton {
 	}
 
 	override open func mouseDown(with event: NSEvent) {
-		isMouseDown = true
-		toggleState()
+        isPressed = true
 	}
 
 	override open func mouseEntered(with event: NSEvent) {
-		if isMouseDown {
-			toggleState()
-		}
+        isPressed = true
 	}
 
 	override open func mouseExited(with event: NSEvent) {
-		if isMouseDown {
-			toggleState()
-			isMouseDown = false
-		}
+        isPressed = false
 	}
 
 	override open func mouseUp(with event: NSEvent) {
-		if isMouseDown {
-			isMouseDown = false
-			toggleState()
-			_ = target?.perform(action, with: self)
-		}
+        isPressed = false
+        toggleState()
+        _ = target?.perform(action, with: self)
 	}
     
     

@@ -94,6 +94,7 @@ final class AnimationDelegate: NSObject, CAAnimationDelegate {
 	}
 }
 
+/*
 
 protocol LayerColorAnimation: AnyObject {}
 extension CALayer: LayerColorAnimation {}
@@ -126,7 +127,7 @@ extension LayerColorAnimation where Self: CALayer {
 		add(animation, forKey: keyPath.toString)
 	}
 }
-
+*/
 
 extension CGPoint {
 	func rounded(_ rule: FloatingPointRoundingRule = .toNearestOrAwayFromZero) -> Self {
@@ -163,3 +164,4 @@ extension KeyPath where Root: NSObject {
 		NSExpression(forKeyPath: self).keyPath
 	}
 }
+
